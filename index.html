@@ -176,7 +176,7 @@
         // --- WEBHOOK UNTUK NOTIFIKASI USER ---
         async function sendUserProcessedWebhook(roblox, discordTag, produk) {
             const embed = {
-                title: "🚀 PESANAN SELESAI DIPROSES @everyone",
+                title: "🚀 PESANAN SELESAI DIPROSES",
                 color: 5763719, // Hijau Cerah
                 description: `Halo **${discordTag}**, pesanan kamu telah berhasil dikirim!`,
                 fields: [
@@ -193,7 +193,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        content: `📢 Notifikasi untuk ${discordTag}`, // Pesan teks biasa (bisa mention jika pakai ID)
+                        content: `📢 Notifikasi pembelian berhasil @everyone`, // Pesan teks biasa (bisa mention jika pakai ID)
                         embeds: [embed] 
                     })
                 });
