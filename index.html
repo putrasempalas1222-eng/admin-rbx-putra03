@@ -13,6 +13,7 @@
             color: #f8fafc;
             background-image: radial-gradient(circle at 100% 0%, rgba(220, 38, 38, 0.08) 0, transparent 40%);
             min-height: 100vh; margin: 0;
+            overflow-x: hidden;
         }
         .glass-card { 
             background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(25px); 
@@ -44,77 +45,139 @@
         .sidebar-item { transition: 0.3s; border-radius: 1rem; cursor: pointer; }
         .sidebar-item.active { background: rgba(220, 38, 38, 0.1); color: #ef4444; }
         .input-unit { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 800; color: #ef4444; pointer-events: none; }
+        
+        /* Login Overlay Style */
+        #login-overlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: #020617;
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
     </style>
 </head>
 <body class="flex flex-col lg:flex-row">
 
-    <div class="lg:hidden w-full p-6 flex justify-between items-center border-b border-white/5 sticky top-0 bg-[#020617]/80 backdrop-blur-md z-50">
-        <div class="text-2xl font-black tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">ADMIN</span></div>
-        <button onclick="toggleSidebar()" class="p-2 bg-red-600/10 rounded-xl text-red-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round"/></svg>
-        </button>
-    </div>
-
-    <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#020617] border-r border-white/5 p-10 flex flex-col z-[60] -translate-x-full lg:translate-x-0 lg:sticky lg:h-screen">
-        <div class="text-3xl font-black mb-16 tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">.</span></div>
-        <nav class="flex-1 space-y-4 text-left">
-            <div onclick="showPage('queue')" id="nav-queue" class="sidebar-item active p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase"><div class="w-2 h-2 rounded-full bg-red-600"></div> Live Queue</div>
-            <div onclick="showPage('manage')" id="nav-manage" class="sidebar-item p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase"><div class="w-2 h-2 rounded-full bg-slate-700"></div> Management</div>
-        </nav>
-        <div class="mt-auto border-t border-white/5 pt-8">
-            <div class="flex items-center gap-3 bg-red-600/10 p-4 rounded-2xl">
-                <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
-                <span class="text-[10px] font-black text-red-500 uppercase tracking-widest">System Secure</span>
+    <div id="login-overlay">
+        <div class="glass-card p-10 rounded-[3rem] w-full max-w-md border-t-4 border-red-600">
+            <div class="text-center mb-8">
+                <div class="text-3xl font-black tracking-tighter italic text-white uppercase mb-2">CORE<span class="text-red-600">AUTH</span></div>
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Restricted Administrator Access</p>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[9px] font-black text-red-500 uppercase ml-4 mb-2 block italic">Username</label>
+                    <input type="text" id="admin-user" placeholder="Enter Username" class="admin-input">
+                </div>
+                <div>
+                    <label class="text-[9px] font-black text-red-500 uppercase ml-4 mb-2 block italic">Access Key</label>
+                    <input type="password" id="admin-pass" placeholder="••••••••" class="admin-input">
+                </div>
+                <button onclick="attemptLogin()" class="btn-core w-full py-5 rounded-2xl font-black text-xs uppercase mt-4 tracking-widest">Identify Session</button>
             </div>
         </div>
-    </aside>
+    </div>
 
-    <main class="flex-1 p-6 lg:p-20 overflow-x-hidden">
-        <section id="page-queue">
-            <h1 class="text-5xl font-black mb-12 italic uppercase text-white tracking-tighter">Live Queue</h1>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="list-active"></div>
-        </section>
+    <div id="admin-content" class="hidden flex flex-col lg:flex-row w-full">
+        <div class="lg:hidden w-full p-6 flex justify-between items-center border-b border-white/5 sticky top-0 bg-[#020617]/80 backdrop-blur-md z-50">
+            <div class="text-2xl font-black tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">ADMIN</span></div>
+            <button onclick="toggleSidebar()" class="p-2 bg-red-600/10 rounded-xl text-red-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+        </div>
 
-        <section id="page-manage" class="hidden">
-            <h1 class="text-5xl font-black mb-12 italic text-red-600 uppercase tracking-tighter">Management</h1>
-            <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
-                <div class="xl:col-span-4 space-y-10">
-                    <div class="glass-card p-8 rounded-[2.5rem]">
-                        <h3 class="text-[10px] font-black text-red-500 uppercase mb-6 italic">Inventory Robux</h3>
-                        <div class="relative mb-4"><input type="text" id="stok_val" placeholder="Total Robux" class="admin-input" oninput="formatIDR(this)"><span class="input-unit">R$ TOTAL</span></div>
-                        <button onclick="updateStok()" class="btn-core w-full py-4 rounded-xl font-black text-[10px] uppercase">Sync Stock</button>
-                    </div>
-
-                    <div class="glass-card p-8 rounded-[2.5rem]">
-                        <h3 id="form-title" class="text-[10px] font-black text-red-500 uppercase mb-6">Deploy Product</h3>
-                        <div class="space-y-4">
-                            <input type="hidden" id="edit-key">
-                            <select id="p_type" class="admin-input cursor-pointer appearance-none font-bold">
-                                <option value="Robux">Robux (Auto Cut)</option>
-                                <option value="Gamepass">Gamepass / Items</option>
-                            </select>
-                            <input type="text" id="p_nama" placeholder="Product Name (ex: 1.000 / Blade)" class="admin-input font-bold uppercase">
-                            <div class="relative"><input type="text" id="p_harga" placeholder="Price" class="admin-input" oninput="formatIDR(this)"><span class="input-unit">Rp</span></div>
-                            <button id="btn-submit-p" onclick="tambahP()" class="w-full bg-white text-black py-4 rounded-xl font-black text-[10px] uppercase italic">Deploy</button>
-                            <button id="btn-cancel-edit" onclick="resetForm()" class="hidden w-full bg-slate-800 text-slate-400 py-4 rounded-xl font-black text-[10px] mt-2">Cancel</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="xl:col-span-8">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-xl font-black italic uppercase text-white underline decoration-red-600 decoration-4">Catalog</h3>
-                        <span class="text-[10px] font-bold text-white uppercase tracking-widest" id="item-count">0 Items</span>
-                    </div>
-                    <div id="list-p-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+        <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#020617] border-r border-white/5 p-10 flex flex-col z-[60] -translate-x-full lg:translate-x-0 lg:sticky lg:h-screen">
+            <div class="text-3xl font-black mb-16 tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">.</span></div>
+            <nav class="flex-1 space-y-4 text-left">
+                <div onclick="showPage('queue')" id="nav-queue" class="sidebar-item active p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase"><div class="w-2 h-2 rounded-full bg-red-600"></div> Live Queue</div>
+                <div onclick="showPage('manage')" id="nav-manage" class="sidebar-item p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase"><div class="w-2 h-2 rounded-full bg-slate-700"></div> Management</div>
+            </nav>
+            <div class="mt-auto border-t border-white/5 pt-8">
+                <button onclick="logout()" class="w-full text-left p-4 text-[10px] font-black text-slate-500 uppercase hover:text-red-500 transition">Terminate Session</button>
+                <div class="flex items-center gap-3 bg-red-600/10 p-4 rounded-2xl mt-4">
+                    <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
+                    <span class="text-[10px] font-black text-red-500 uppercase tracking-widest">System Secure</span>
                 </div>
             </div>
-        </section>
-    </main>
+        </aside>
+
+        <main class="flex-1 p-6 lg:p-20 overflow-x-hidden">
+            <section id="page-queue">
+                <h1 class="text-5xl font-black mb-12 italic uppercase text-white tracking-tighter">Live Queue</h1>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="list-active"></div>
+            </section>
+
+            <section id="page-manage" class="hidden">
+                <h1 class="text-5xl font-black mb-12 italic text-red-600 uppercase tracking-tighter">Management</h1>
+                <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+                    <div class="xl:col-span-4 space-y-10">
+                        <div class="glass-card p-8 rounded-[2.5rem]">
+                            <h3 class="text-[10px] font-black text-red-500 uppercase mb-6 italic">Inventory Robux</h3>
+                            <div class="relative mb-4"><input type="text" id="stok_val" placeholder="Total Robux" class="admin-input" oninput="formatIDR(this)"><span class="input-unit">R$ TOTAL</span></div>
+                            <button onclick="updateStok()" class="btn-core w-full py-4 rounded-xl font-black text-[10px] uppercase">Sync Stock</button>
+                        </div>
+
+                        <div class="glass-card p-8 rounded-[2.5rem]">
+                            <h3 id="form-title" class="text-[10px] font-black text-red-500 uppercase mb-6">Deploy Product</h3>
+                            <div class="space-y-4">
+                                <input type="hidden" id="edit-key">
+                                <select id="p_type" class="admin-input cursor-pointer appearance-none font-bold">
+                                    <option value="Robux">Robux (Auto Cut)</option>
+                                    <option value="Gamepass">Gamepass / Items</option>
+                                </select>
+                                <input type="text" id="p_nama" placeholder="Product Name (ex: 1.000 / Blade)" class="admin-input font-bold uppercase">
+                                <div class="relative"><input type="text" id="p_harga" placeholder="Price" class="admin-input" oninput="formatIDR(this)"><span class="input-unit">Rp</span></div>
+                                <button id="btn-submit-p" onclick="tambahP()" class="w-full bg-white text-black py-4 rounded-xl font-black text-[10px] uppercase italic">Deploy</button>
+                                <button id="btn-cancel-edit" onclick="resetForm()" class="hidden w-full bg-slate-800 text-slate-400 py-4 rounded-xl font-black text-[10px] mt-2">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="xl:col-span-8">
+                        <div class="flex items-center justify-between mb-8">
+                            <h3 class="text-xl font-black italic uppercase text-white underline decoration-red-600 decoration-4">Catalog</h3>
+                            <span class="text-[10px] font-bold text-white uppercase tracking-widest" id="item-count">0 Items</span>
+                        </div>
+                        <div id="list-p-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+        // --- AUTH LOGIC ---
+        const ADMIN_CRED = { u: "putragacorbae", p: "?admintopup031104" };
+        
+        window.attemptLogin = () => {
+            const u = document.getElementById('admin-user').value;
+            const p = document.getElementById('admin-pass').value;
+            
+            if(u === ADMIN_CRED.u && p === ADMIN_CRED.p) {
+                sessionStorage.setItem('admin_auth', 'true');
+                checkAuth();
+            } else {
+                alert("ACCESS DENIED: Invalid Credentials");
+            }
+        };
+
+        window.logout = () => {
+            sessionStorage.removeItem('admin_auth');
+            location.reload();
+        };
+
+        function checkAuth() {
+            if(sessionStorage.getItem('admin_auth') === 'true') {
+                document.getElementById('login-overlay').classList.add('hidden');
+                document.getElementById('admin-content').classList.remove('hidden');
+            }
+        }
+        
+        // Periksa status login saat script dimuat
+        checkAuth();
+
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyBgDG1pbpT-eB8RR_gPGs1EfZR9Sfczzfc",
             authDomain: "cute-temanmu.firebaseapp.com",
@@ -133,7 +196,7 @@
         window.showPage = (p) => { document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden')); document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); document.getElementById(`page-${p}`).classList.remove('hidden'); document.getElementById(`nav-${p}`).classList.add('active'); if(window.innerWidth < 1024) toggleSidebar(); };
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('-translate-x-full');
 
-        // --- AUTHORIZE ACC (SUCCESS INVOICE) ---
+        // --- AUTHORIZE ACC ---
         window.acc = async (orderKey, prod, rob, disc, type, uid) => {
             if(!confirm(`Terima pesanan ${rob}?`)) return;
             try {
@@ -179,7 +242,7 @@
             } catch (e) { alert(e.message); }
         };
 
-        // --- REJECT ORDER (FAILED INVOICE) ---
+        // --- REJECT ORDER ---
         window.reject = async (orderKey, prod, rob, disc, uid) => {
             const reason = prompt(`Alasan tolak ${rob}:`, "Bukti transfer tidak valid / Belum masuk");
             if(reason === null) return;
