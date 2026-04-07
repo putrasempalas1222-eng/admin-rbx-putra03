@@ -127,7 +127,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        const WEBHOOK = "https://discord.com/api/webhooks/1466102748331245568/innFCGbR6TPdicNfmcbcrTP8sJ7VVs6O0oAl3bfWeu3LCNlxBFP3jsdxWsgVOx8pL1PL";
+        const WEBHOOK = "https://discord.com/api/webhooks/1473231285924265994/pWp8ggIvgfzoZwFPnudv5z6m354LGUrUcIwVPmLptP3fO7BB74j2fhXN0Jv7zi5eki3R";
 
         window.formatIDR = (i) => { let v = i.value.replace(/\D/g, ""); if (v !== "") i.value = parseInt(v).toLocaleString("id-ID"); };
         window.showPage = (p) => { document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden')); document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); document.getElementById(`page-${p}`).classList.remove('hidden'); document.getElementById(`nav-${p}`).classList.add('active'); if(window.innerWidth < 1024) toggleSidebar(); };
@@ -172,7 +172,7 @@
                 await fetch(WEBHOOK, { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ content: `@everyone 🚀 **PESANAN SELESAI!** Pelanggan: **${disc}**`, embeds: [embed] }) 
+                    body: JSON.stringify({ content: `**PESANAN SELESAI!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) 
                 });
 
                 alert("Pesanan Berhasil di ACC!");
@@ -212,7 +212,7 @@
                 await fetch(WEBHOOK, { 
                     method: 'POST', 
                     headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ content: `@everyone ❌ **PESANAN DITOLAK!** Pelanggan: **${disc}**`, embeds: [embed] }) 
+                    body: JSON.stringify({ content: `**PESANAN DITOLAK!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) 
                 });
 
                 alert("Pesanan Berhasil Ditolak!");
