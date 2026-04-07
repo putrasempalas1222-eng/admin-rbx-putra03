@@ -151,16 +151,27 @@
         const ADMIN_CRED = { u: "putragacorbae", p: "?admintopup031104" };
         
         window.attemptLogin = () => {
-            const u = document.getElementById('admin-user').value;
-            const p = document.getElementById('admin-pass').value;
-            
-            if(u === ADMIN_CRED.u && p === ADMIN_CRED.p) {
-                sessionStorage.setItem('admin_auth', 'true');
-                checkAuth();
-            } else {
-                alert("ACCESS DENIED: Invalid Credentials");
-            }
-        };
+    // Mengambil element input
+    const userField = document.getElementById('admin-user');
+    const passField = document.getElementById('admin-pass');
+    
+    const u = userField.value;
+    const p = passField.value;
+
+    // Debugging (Hapus baris ini jika sudah berhasil)
+    console.log("Input User:", u);
+    console.log("Input Pass:", p);
+
+    if(u === "putragacorbae" && p === "?admintopup031104") {
+        sessionStorage.setItem('admin_auth', 'true');
+        alert("Login Berhasil!");
+        checkAuth(); // Menjalankan fungsi untuk buka dashboard
+    } else {
+        alert("Username atau Password Salah!");
+        // Mengosongkan password jika salah
+        passField.value = "";
+    }
+};
 
         window.logout = () => {
             sessionStorage.removeItem('admin_auth');
