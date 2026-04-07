@@ -46,7 +46,6 @@
         .sidebar-item.active { background: rgba(220, 38, 38, 0.1); color: #ef4444; }
         .input-unit { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 800; color: #ef4444; pointer-events: none; }
         
-        /* Login Overlay Style */
         #login-overlay {
             position: fixed; inset: 0; z-index: 100;
             background: #020617;
@@ -147,48 +146,37 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- AUTH LOGIC ---
+        // --- AUTH SYSTEM ---
         const ADMIN_CRED = { u: "putragacorbae", p: "?admintopup031104" };
-        
+
+        function checkAuth() {
+            if (sessionStorage.getItem('admin_auth') === 'true') {
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('admin-content').classList.remove('hidden');
+            }
+        }
+
         window.attemptLogin = () => {
-    // Mengambil element input
-    const userField = document.getElementById('admin-user');
-    const passField = document.getElementById('admin-pass');
-    
-    const u = userField.value;
-    const p = passField.value;
-
-    // Debugging (Hapus baris ini jika sudah berhasil)
-    console.log("Input User:", u);
-    console.log("Input Pass:", p);
-
-    if(u === "putragacorbae" && p === "?admintopup031104") {
-        sessionStorage.setItem('admin_auth', 'true');
-        alert("Login Berhasil!");
-        checkAuth(); // Menjalankan fungsi untuk buka dashboard
-    } else {
-        alert("Username atau Password Salah!");
-        // Mengosongkan password jika salah
-        passField.value = "";
-    }
-};
+            const u = document.getElementById('admin-user').value;
+            const p = document.getElementById('admin-pass').value;
+            if (u === ADMIN_CRED.u && p === ADMIN_CRED.p) {
+                sessionStorage.setItem('admin_auth', 'true');
+                alert("Login Berhasil!");
+                checkAuth();
+            } else {
+                alert("Akses Ditolak: Kredensial Salah!");
+                document.getElementById('admin-pass').value = "";
+            }
+        };
 
         window.logout = () => {
             sessionStorage.removeItem('admin_auth');
             location.reload();
         };
 
-        function checkAuth() {
-            if(sessionStorage.getItem('admin_auth') === 'true') {
-                document.getElementById('login-overlay').classList.add('hidden');
-                document.getElementById('admin-content').classList.remove('hidden');
-            }
-        }
-        
-        // Periksa status login saat script dimuat
         checkAuth();
 
-        // --- FIREBASE CONFIG ---
+        // --- FIREBASE SETUP ---
         const firebaseConfig = {
             apiKey: "AIzaSyBgDG1pbpT-eB8RR_gPGs1EfZR9Sfczzfc",
             authDomain: "cute-temanmu.firebaseapp.com",
@@ -203,11 +191,12 @@
         const db = getDatabase(app);
         const WEBHOOK = "https://discord.com/api/webhooks/1473231285924265994/pWp8ggIvgfzoZwFPnudv5z6m354LGUrUcIwVPmLptP3fO7BB74j2fhXN0Jv7zi5eki3R";
 
+        // --- UTILS ---
         window.formatIDR = (i) => { let v = i.value.replace(/\D/g, ""); if (v !== "") i.value = parseInt(v).toLocaleString("id-ID"); };
         window.showPage = (p) => { document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden')); document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active')); document.getElementById(`page-${p}`).classList.remove('hidden'); document.getElementById(`nav-${p}`).classList.add('active'); if(window.innerWidth < 1024) toggleSidebar(); };
         window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('-translate-x-full');
 
-        // --- AUTHORIZE ACC ---
+        // --- DATABASE ACTIONS ---
         window.acc = async (orderKey, prod, rob, disc, type, uid) => {
             if(!confirm(`Terima pesanan ${rob}?`)) return;
             try {
@@ -217,83 +206,49 @@
                     const curr = snap.val() || 0; if (curr < minus) return alert("Stok Robux Tidak Cukup!");
                     await set(sRef, curr - minus);
                 }
-
-                await push(ref(db, `notif_popup/${uid}`), {
-                    type: 'success', title: 'ORDER SUCCESS', 
-                    msg: `Selamat! Pesanan ${prod} Anda telah berhasil dikirim oleh Admin.`
-                });
-
+                await push(ref(db, `notif_popup/${uid}`), { type: 'success', title: 'ORDER SUCCESS', msg: `Selamat! Pesanan ${prod} Anda telah berhasil dikirim oleh Admin.` });
                 const time = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
                 await push(ref(db, `riwayat/${uid}`), { produk: prod, time: time, roblox: rob, status: 'success' });
                 await remove(ref(db, `orders_active/${uid}`));
                 
-                // INVOICE WEBHOOK SUCCESS
                 const embed = {
-                    title: "🧾 OFFICIAL RECEIPT - SUCCESS",
-                    color: 5763719,
-                    description: "Transaksi telah berhasil diproses secara otomatis oleh sistem.",
+                    title: "🧾 OFFICIAL RECEIPT - SUCCESS", color: 5763719, description: "Transaksi telah berhasil diproses secara otomatis oleh sistem.",
                     fields: [
                         { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0,6).toUpperCase()}\``, inline: true },
                         { name: "⏰ WAKTU SELESAI", value: time, inline: true },
                         { name: "🎮 USERNAME ROBLOX", value: `**${rob}**`, inline: false },
-                        { name: "📦 DETAIL ITEM", value: `\`${prod}\``, inline: false },
-                        { name: "✨ STATUS AKHIR", value: "✅ **SUCCESSFULLY DELIVERED**", inline: false }
+                        { name: "📦 DETAIL ITEM", value: `\`${prod}\``, inline: false }
                     ],
-                    footer: { text: "RBX-STORE Digital Struk System" },
-                    timestamp: new Date()
+                    footer: { text: "RBX-STORE Digital Struk System" }, timestamp: new Date()
                 };
-
-                await fetch(WEBHOOK, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ content: `**PESANAN SELESAI!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) 
-                });
-
+                await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: `**PESANAN SELESAI!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) });
                 alert("Pesanan Berhasil di ACC!");
             } catch (e) { alert(e.message); }
         };
 
-        // --- REJECT ORDER ---
         window.reject = async (orderKey, prod, rob, disc, uid) => {
             const reason = prompt(`Alasan tolak ${rob}:`, "Bukti transfer tidak valid / Belum masuk");
             if(reason === null) return;
             try {
-                await push(ref(db, `notif_popup/${uid}`), {
-                    type: 'error', title: 'ORDER REJECTED', 
-                    msg: `Maaf, pesanan ${prod} Anda ditolak. Alasan: ${reason}`
-                });
-
+                await push(ref(db, `notif_popup/${uid}`), { type: 'error', title: 'ORDER REJECTED', msg: `Maaf, pesanan ${prod} Anda ditolak. Alasan: ${reason}` });
                 const time = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
                 await push(ref(db, `riwayat/${uid}`), { produk: prod, time: time, roblox: rob, status: 'failed', reason: reason });
                 await remove(ref(db, `orders_active/${uid}`));
 
-                // INVOICE WEBHOOK REJECTED
                 const embed = {
-                    title: "❌ TRANSACTION REJECTED",
-                    color: 15548997,
-                    description: "Mohon maaf, pesanan Anda tidak dapat kami proses saat ini.",
+                    title: "❌ TRANSACTION REJECTED", color: 15548997, description: "Mohon maaf, pesanan Anda tidak dapat kami proses saat ini.",
                     fields: [
                         { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0,6).toUpperCase()}\``, inline: true },
-                        { name: "⏰ WAKTU", value: time, inline: true },
                         { name: "🎮 USERNAME", value: `**${rob}**`, inline: false },
-                        { name: "📦 ITEM", value: `\`${prod}\``, inline: false },
                         { name: "⚠️ ALASAN PENOLAKAN", value: `**${reason}**`, inline: false }
                     ],
-                    footer: { text: "Hubungi Admin untuk klarifikasi lebih lanjut." },
-                    timestamp: new Date()
+                    footer: { text: "Hubungi Admin untuk klarifikasi." }, timestamp: new Date()
                 };
-
-                await fetch(WEBHOOK, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ content: `**PESANAN DITOLAK!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) 
-                });
-
+                await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: `**PESANAN DITOLAK!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) });
                 alert("Pesanan Berhasil Ditolak!");
             } catch (e) { alert(e.message); }
         };
 
-        // --- MONITOR QUEUE ---
         onValue(ref(db, 'orders_active'), (snap) => {
             const list = document.getElementById('list-active'); list.innerHTML = "";
             if(!snap.exists()) { list.innerHTML = "<div class='col-span-full glass-card p-16 text-center opacity-40 uppercase font-black italic'>Antrean Kosong</div>"; return; }
@@ -303,7 +258,6 @@
                     <div class="glass-card p-8 rounded-[2.5rem] border-l-4 border-red-600">
                         <div class="text-[9px] font-black text-red-500 uppercase italic">Target User</div>
                         <div class="text-2xl font-black text-white italic truncate">${d.roblox}</div>
-                        <div class="text-[10px] text-slate-400 font-black italic mb-6">${d.discord}</div>
                         <div class="bg-white/5 p-4 rounded-2xl mb-6 text-white font-black text-sm uppercase border border-white/5 italic">${d.produk}</div>
                         <div class="flex gap-2">
                             <button onclick="acc('${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.type}', '${d.uid}')" class="flex-[2] btn-core py-4 rounded-xl font-black text-[10px] uppercase">ACC</button>
