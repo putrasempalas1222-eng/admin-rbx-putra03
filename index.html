@@ -212,7 +212,7 @@
                 await remove(ref(db, `orders_active/${uid}`));
                 
                 const embed = {
-                    title: "🧾 OFFICIAL RECEIPT - SUCCESS", color: 5763719, description: "Transaksi telah berhasil diproses secara otomatis oleh sistem.",
+                    title: "OFFICIAL RECEIPT - SUCCESS", color: 5763719, description: "Transaksi telah berhasil diproses secara otomatis oleh sistem.",
                     fields: [
                         { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0,6).toUpperCase()}\``, inline: true },
                         { name: "⏰ WAKTU SELESAI", value: time, inline: true },
@@ -236,7 +236,7 @@
                 await remove(ref(db, `orders_active/${uid}`));
 
                 const embed = {
-                    title: "❌ TRANSACTION REJECTED", color: 15548997, description: "Mohon maaf, pesanan Anda tidak dapat kami proses saat ini.",
+                    title: "TRANSACTION REJECTED", color: 15548997, description: "Mohon maaf, pesanan Anda tidak dapat kami proses saat ini.",
                     fields: [
                         { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0,6).toUpperCase()}\``, inline: true },
                         { name: "🎮 USERNAME", value: `**${rob}**`, inline: false },
