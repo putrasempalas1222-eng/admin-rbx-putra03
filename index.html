@@ -1,437 +1,844 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>RBX-ADMIN | Command Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet" />
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: #020617; 
-            color: #f8fafc;
-            background-image: radial-gradient(circle at 100% 0%, rgba(220, 38, 38, 0.08) 0, transparent 40%);
-            min-height: 100vh; margin: 0;
-            overflow-x: hidden;
-        }
-        .glass-card { 
-            background: rgba(15, 23, 42, 0.3); backdrop-filter: blur(25px); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-        }
-        .admin-input {
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            padding: 16px 20px; border-radius: 1.25rem; width: 100%;
-            outline: none; font-size: 14px; color: white; transition: 0.4s ease;
-        }
-        .admin-input:focus { border-color: #ef4444 !important; box-shadow: 0 0 25px rgba(239, 68, 68, 0.15); transform: translateY(-2px); }
-        .btn-core {
-            background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
-            box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4);
-            transition: all 0.3s ease; color: white;
-        }
-        .btn-core:hover { transform: translateY(-3px); filter: brightness(1.1); }
-        .btn-reject {
-            background: rgba(239, 68, 68, 0.1); color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.2); transition: 0.3s;
-        }
-        .btn-reject:hover { background: #ef4444; color: white; }
-        .item-card {
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.03); transition: 0.4s;
-        }
-        .sidebar-item { transition: 0.3s; border-radius: 1rem; cursor: pointer; }
-        .sidebar-item.active { background: rgba(220, 38, 38, 0.1); color: #ef4444; }
-        .input-unit { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); font-size: 10px; font-weight: 800; color: #ef4444; pointer-events: none; }
-        
-        #login-overlay {
-            position: fixed; inset: 0; z-index: 100;
-            background: #020617;
-            display: flex; align-items: center; justify-content: center;
-            padding: 20px;
-        }
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: #020617;
+        color: #f8fafc;
+        background-image: radial-gradient(circle at 100% 0%, rgba(220, 38, 38, 0.08) 0, transparent 40%);
+        min-height: 100vh;
+        margin: 0;
+        overflow-x: hidden;
+      }
+      .glass-card {
+        background: rgba(15, 23, 42, 0.3);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      }
+      .admin-input {
+        background: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        padding: 16px 20px;
+        border-radius: 1.25rem;
+        width: 100%;
+        outline: none;
+        font-size: 14px;
+        color: white;
+        transition: 0.4s ease;
+      }
+      .admin-input:focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.15);
+        transform: translateY(-2px);
+      }
+      .btn-core {
+        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        box-shadow: 0 10px 20px -5px rgba(239, 68, 68, 0.4);
+        transition: all 0.3s ease;
+        color: white;
+      }
+      .btn-core:hover {
+        transform: translateY(-3px);
+        filter: brightness(1.1);
+      }
+      .btn-reject {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        transition: 0.3s;
+      }
+      .btn-reject:hover {
+        background: #ef4444;
+        color: white;
+      }
+      .item-card {
+        background: linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        transition: 0.4s;
+      }
+      .sidebar-item {
+        transition: 0.3s;
+        border-radius: 1rem;
+        cursor: pointer;
+      }
+      .sidebar-item.active {
+        background: rgba(220, 38, 38, 0.1);
+        color: #ef4444;
+      }
+      .input-unit {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 10px;
+        font-weight: 800;
+        color: #ef4444;
+        pointer-events: none;
+      }
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #ef4444; border-radius: 10px; }
+      #login-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: #020617;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
 
-        /* Animation for Modal */
-        .modal-enter { animation: modalFadeIn 0.3s ease-out forwards; }
-        @keyframes modalFadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ef4444;
+        border-radius: 10px;
+      }
+
+      /* Animation for Modal */
+      .modal-enter {
+        animation: modalFadeIn 0.3s ease-out forwards;
+      }
+      @keyframes modalFadeIn {
+        from {
+          opacity: 0;
+          transform: scale(0.9);
         }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
     </style>
-</head>
-<body class="flex flex-col lg:flex-row">
-
+  </head>
+  <body class="flex flex-col lg:flex-row">
     <div id="login-overlay">
-        <div class="glass-card p-10 rounded-[3rem] w-full max-w-md border-t-4 border-red-600">
-            <div class="text-center mb-8">
-                <div class="text-3xl font-black tracking-tighter italic text-white uppercase mb-2">CORE<span class="text-red-600">AUTH</span></div>
-                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Restricted Administrator Access</p>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="text-[9px] font-black text-red-500 uppercase ml-4 mb-2 block italic">Username</label>
-                    <input type="text" id="admin-user" placeholder="Enter Username" class="admin-input">
-                </div>
-                <div>
-                    <label class="text-[9px] font-black text-red-500 uppercase ml-4 mb-2 block italic">Access Key</label>
-                    <input type="password" id="admin-pass" placeholder="••••••••" class="admin-input">
-                </div>
-                <button onclick="attemptLogin()" class="btn-core w-full py-5 rounded-2xl font-black text-xs uppercase mt-4 tracking-widest">Identify Session</button>
-            </div>
+      <div class="glass-card p-10 rounded-[3rem] w-full max-w-md border-t-4 border-red-600">
+        <div class="text-center mb-8">
+          <div class="text-3xl font-black tracking-tighter italic text-white uppercase mb-2">CORE<span class="text-red-600">AUTH</span></div>
+          <p class="text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em]">Restricted Administrator Access</p>
         </div>
+        <div class="space-y-4">
+          <div>
+            <label class="text-[9px] font-black text-red-500 uppercase ml-4 mb-2 block italic">Username</label>
+            <input type="text" id="admin-user" placeholder="Enter Username" class="admin-input" />
+          </div>
+          <div>
+            <label class="text-[9px] font-black text-red-500 uppercase ml-4 mb-2 block italic">Access Key</label>
+            <input type="password" id="admin-pass" placeholder="••••••••" class="admin-input" />
+          </div>
+          <button onclick="attemptLogin()" class="btn-core w-full py-5 rounded-2xl font-black text-xs uppercase mt-4 tracking-widest">Identify Session</button>
+        </div>
+      </div>
     </div>
 
     <div id="admin-content" class="hidden flex flex-col lg:flex-row w-full">
-        <div class="lg:hidden w-full p-6 flex justify-between items-center border-b border-white/5 sticky top-0 bg-[#020617]/80 backdrop-blur-md z-50">
-            <div class="text-2xl font-black tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">ADMIN</span></div>
-            <button onclick="toggleSidebar()" class="p-2 bg-red-600/10 rounded-xl text-red-600">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round"/></svg>
-            </button>
+      <div class="lg:hidden w-full p-6 flex justify-between items-center border-b border-white/5 sticky top-0 bg-[#020617]/80 backdrop-blur-md z-50">
+        <div class="text-2xl font-black tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">ADMIN</span></div>
+        <button onclick="toggleSidebar()" class="p-2 bg-red-600/10 rounded-xl text-red-600">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round" /></svg>
+        </button>
+      </div>
+
+      <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#020617] border-r border-white/5 p-10 flex flex-col z-[60] -translate-x-full lg:translate-x-0 lg:sticky lg:h-screen">
+        <div class="text-3xl font-black mb-16 tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">.</span></div>
+        <nav class="flex-1 space-y-4 text-left">
+          <div onclick="showPage('queue')" id="nav-queue" class="sidebar-item active p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase">
+            <div class="w-2 h-2 rounded-full bg-red-600"></div>
+            Live Queue
+          </div>
+          <div onclick="showPage('chat')" id="nav-chat" class="sidebar-item p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase">
+            <div class="w-2 h-2 rounded-full bg-slate-700"></div>
+            Chat Pembeli
+          </div>
+          <div onclick="showPage('manage')" id="nav-manage" class="sidebar-item p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase">
+            <div class="w-2 h-2 rounded-full bg-slate-700"></div>
+            Management
+          </div>
+          <div onclick="showPage('history')" id="nav-history" class="sidebar-item p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase">
+            <div class="w-2 h-2 rounded-full bg-slate-700"></div>
+            Order History
+          </div>
+        </nav>
+        <div class="mt-auto border-t border-white/5 pt-8">
+          <button onclick="logout()" class="w-full text-left p-4 text-[10px] font-black text-slate-500 uppercase hover:text-red-500 transition">Terminate Session</button>
+          <div class="flex items-center gap-3 bg-red-600/10 p-4 rounded-2xl mt-4">
+            <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
+            <span class="text-[10px] font-black text-red-500 uppercase tracking-widest">System Secure</span>
+          </div>
         </div>
+      </aside>
 
-        <aside id="sidebar" class="fixed inset-y-0 left-0 w-72 bg-[#020617] border-r border-white/5 p-10 flex flex-col z-[60] -translate-x-full lg:translate-x-0 lg:sticky lg:h-screen">
-            <div class="text-3xl font-black mb-16 tracking-tighter italic text-white uppercase">CORE<span class="text-red-600">.</span></div>
-            <nav class="flex-1 space-y-4 text-left">
-                <div onclick="showPage('queue')" id="nav-queue" class="sidebar-item active p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase"><div class="w-2 h-2 rounded-full bg-red-600"></div> Live Queue</div>
-                <div onclick="showPage('manage')" id="nav-manage" class="sidebar-item p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase"><div class="w-2 h-2 rounded-full bg-slate-700"></div> Management</div>
-                <div onclick="showPage('history')" id="nav-history" class="sidebar-item p-4 text-xs font-black text-slate-400 flex items-center gap-4 uppercase"><div class="w-2 h-2 rounded-full bg-slate-700"></div> Order History</div>
-            </nav>
-            <div class="mt-auto border-t border-white/5 pt-8">
-                <button onclick="logout()" class="w-full text-left p-4 text-[10px] font-black text-slate-500 uppercase hover:text-red-500 transition">Terminate Session</button>
-                <div class="flex items-center gap-3 bg-red-600/10 p-4 rounded-2xl mt-4">
-                    <div class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div>
-                    <span class="text-[10px] font-black text-red-500 uppercase tracking-widest">System Secure</span>
+      <main class="flex-1 p-6 lg:p-20 overflow-x-hidden">
+        <section id="page-queue">
+          <h1 class="text-5xl font-black mb-12 italic uppercase text-white tracking-tighter">Live Queue</h1>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="list-active"></div>
+        </section>
+
+        <section id="page-manage" class="hidden">
+          <h1 class="text-5xl font-black mb-12 italic text-red-600 uppercase tracking-tighter">Management</h1>
+          <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
+            <div class="xl:col-span-4 space-y-10">
+              <div class="glass-card p-8 rounded-[2.5rem]">
+                <h3 class="text-[10px] font-black text-red-500 uppercase mb-6 italic">Inventory Robux</h3>
+                <div class="relative mb-4"><input type="text" id="stok_val" placeholder="Total Robux" class="admin-input" oninput="formatIDR(this)" /><span class="input-unit">R$ TOTAL</span></div>
+                <button onclick="updateStok()" class="btn-core w-full py-4 rounded-xl font-black text-[10px] uppercase">Sync Stock</button>
+              </div>
+              <div class="glass-card p-8 rounded-[2.5rem]">
+                <h3 id="form-title" class="text-[10px] font-black text-red-500 uppercase mb-6">Deploy Product</h3>
+                <div class="space-y-4">
+                  <input type="hidden" id="edit-key" />
+                  <select id="p_type" class="admin-input cursor-pointer appearance-none font-bold">
+                    <option value="Robux">Robux (Auto Cut)</option>
+                    <option value="Gamepass">Gamepass / Items</option>
+                  </select>
+                  <input type="text" id="p_nama" placeholder="Product Name" class="admin-input font-bold uppercase" />
+                  <div class="relative"><input type="text" id="p_harga" placeholder="Price" class="admin-input" oninput="formatIDR(this)" /><span class="input-unit">Rp</span></div>
+                  <button id="btn-submit-p" onclick="tambahP()" class="w-full bg-white text-black py-4 rounded-xl font-black text-[10px] uppercase italic">Deploy</button>
+                  <button id="btn-cancel-edit" onclick="resetForm()" class="hidden w-full bg-slate-800 text-slate-400 py-4 rounded-xl font-black text-[10px] mt-2">Cancel</button>
                 </div>
+              </div>
             </div>
-        </aside>
+            <div class="xl:col-span-8">
+              <div class="flex items-center justify-between mb-8">
+                <h3 class="text-xl font-black italic uppercase text-white underline decoration-red-600 decoration-4">Catalog</h3>
+                <span class="text-[10px] font-bold text-white uppercase tracking-widest" id="item-count">0 Items</span>
+              </div>
+              <div id="list-p-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+            </div>
+          </div>
+        </section>
 
-        <main class="flex-1 p-6 lg:p-20 overflow-x-hidden">
-            
-            <section id="page-queue">
-                <h1 class="text-5xl font-black mb-12 italic uppercase text-white tracking-tighter">Live Queue</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="list-active"></div>
-            </section>
+        <section id="page-history" class="hidden">
+          <div class="flex justify-between items-end mb-12">
+            <h1 class="text-5xl font-black italic uppercase text-white tracking-tighter">Order History</h1>
+            <button onclick="clearAllHistory()" class="text-[10px] font-black text-red-500 border border-red-500/20 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition uppercase">Wipe All Records</button>
+          </div>
 
-            <section id="page-manage" class="hidden">
-                <h1 class="text-5xl font-black mb-12 italic text-red-600 uppercase tracking-tighter">Management</h1>
-                <div class="grid grid-cols-1 xl:grid-cols-12 gap-10">
-                    <div class="xl:col-span-4 space-y-10">
-                        <div class="glass-card p-8 rounded-[2.5rem]">
-                            <h3 class="text-[10px] font-black text-red-500 uppercase mb-6 italic">Inventory Robux</h3>
-                            <div class="relative mb-4"><input type="text" id="stok_val" placeholder="Total Robux" class="admin-input" oninput="formatIDR(this)"><span class="input-unit">R$ TOTAL</span></div>
-                            <button onclick="updateStok()" class="btn-core w-full py-4 rounded-xl font-black text-[10px] uppercase">Sync Stock</button>
-                        </div>
-                        <div class="glass-card p-8 rounded-[2.5rem]">
-                            <h3 id="form-title" class="text-[10px] font-black text-red-500 uppercase mb-6">Deploy Product</h3>
-                            <div class="space-y-4">
-                                <input type="hidden" id="edit-key">
-                                <select id="p_type" class="admin-input cursor-pointer appearance-none font-bold">
-                                    <option value="Robux">Robux (Auto Cut)</option>
-                                    <option value="Gamepass">Gamepass / Items</option>
-                                </select>
-                                <input type="text" id="p_nama" placeholder="Product Name" class="admin-input font-bold uppercase">
-                                <div class="relative"><input type="text" id="p_harga" placeholder="Price" class="admin-input" oninput="formatIDR(this)"><span class="input-unit">Rp</span></div>
-                                <button id="btn-submit-p" onclick="tambahP()" class="w-full bg-white text-black py-4 rounded-xl font-black text-[10px] uppercase italic">Deploy</button>
-                                <button id="btn-cancel-edit" onclick="resetForm()" class="hidden w-full bg-slate-800 text-slate-400 py-4 rounded-xl font-black text-[10px] mt-2">Cancel</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="xl:col-span-8">
-                        <div class="flex items-center justify-between mb-8">
-                            <h3 class="text-xl font-black italic uppercase text-white underline decoration-red-600 decoration-4">Catalog</h3>
-                            <span class="text-[10px] font-bold text-white uppercase tracking-widest" id="item-count">0 Items</span>
-                        </div>
-                        <div id="list-p-admin" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                    </div>
+          <div class="glass-card rounded-[2.5rem] overflow-hidden border border-white/5">
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-white/5">
+                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">Time</th>
+                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">User</th>
+                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">Product</th>
+                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="page-chat" class="hidden">
+          <div class="flex justify-between items-end mb-12">
+            <div>
+              <h1 class="text-5xl font-black italic uppercase text-white tracking-tighter">Chat Pembeli</h1>
+              <p class="text-sm text-slate-400 uppercase tracking-[0.2em]">Terhubung dengan pembeli aktif untuk menyelesaikan CS.</p>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
+            <div>
+              <div class="glass-card p-6 rounded-[2.5rem] border border-white/5 mb-6">
+                <div class="text-[10px] font-black text-slate-400 uppercase mb-3">Sesi Chat Aktif</div>
+                <div id="chat-session-list" class="space-y-4"></div>
+              </div>
+            </div>
+            <div>
+              <div id="chat-panel" class="glass-card p-6 rounded-[2.5rem] border border-white/5 bg-[#020617] hidden">
+                <div class="flex items-center justify-between mb-5">
+                  <div>
+                    <div class="text-[10px] font-black text-slate-400 uppercase mb-2">Chat dengan</div>
+                    <div id="chat-panel-user" class="text-lg font-black text-white uppercase">Pilih sesi terlebih dahulu</div>
+                  </div>
+                  <button onclick="closeChatPanel()" class="btn-reject py-2 px-4 rounded-xl text-[10px] uppercase">Tutup</button>
                 </div>
-            </section>
-
-            <section id="page-history" class="hidden">
-                <div class="flex justify-between items-end mb-12">
-                    <h1 class="text-5xl font-black italic uppercase text-white tracking-tighter">Order History</h1>
-                    <button onclick="clearAllHistory()" class="text-[10px] font-black text-red-500 border border-red-500/20 px-4 py-2 rounded-lg hover:bg-red-500 hover:text-white transition uppercase">Wipe All Records</button>
+                <div id="chat-messages-admin-panel" class="min-h-[52vh] max-h-[52vh] overflow-y-auto space-y-4 p-4 rounded-[2rem] bg-[#0f172a]"></div>
+                <div class="mt-4">
+                  <div class="flex gap-2">
+                    <input type="text" id="admin-chat-input-panel" placeholder="Type your message..." class="admin-input flex-1" onkeypress="if (event.key === 'Enter') sendAdminMessagePanel();" />
+                    <button onclick="sendAdminMessagePanel()" class="btn-core px-6 py-3 rounded-xl font-black text-xs uppercase">Send</button>
+                  </div>
+                  <button onclick="endChatSession()" class="w-full mt-4 btn-reject py-3 rounded-xl font-black text-xs uppercase">End Chat & Return to Bot</button>
                 </div>
-                
-                <div class="glass-card rounded-[2.5rem] overflow-hidden border border-white/5">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="bg-white/5">
-                                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">Time</th>
-                                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">User</th>
-                                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">Product</th>
-                                    <th class="p-6 text-[10px] font-black uppercase text-slate-400 italic">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="history-table-body"></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-        </main>
+              </div>
+              <div id="chat-panel-empty" class="glass-card p-10 rounded-[2.5rem] border border-white/5 text-center text-slate-400">Pilih sesi chat dari daftar di kiri untuk mulai berbicara dengan pembeli.</div>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
 
     <div id="detail-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-6 bg-[#020617]/90 backdrop-blur-xl">
-        <div class="glass-card w-full max-w-lg rounded-[3rem] border-t-4 border-red-600 overflow-hidden relative modal-enter">
-            <button onclick="closeDetail()" class="absolute top-6 right-6 p-2 bg-white/5 hover:bg-red-600/20 rounded-full text-white transition-all group">
-                <svg class="w-6 h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round"/></svg>
-            </button>
-            <div class="p-10">
-                <div class="mb-8">
-                    <div class="text-3xl font-black italic text-white uppercase tracking-tighter">ORDER<span class="text-red-600">DETAIL</span></div>
-                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Digital Transaction Receipt</p>
-                </div>
-                <div id="detail-content" class="space-y-6"></div>
-                <button onclick="closeDetail()" class="btn-core w-full py-5 rounded-2xl font-black text-xs uppercase mt-10 tracking-widest">Close Record</button>
-            </div>
+      <div class="glass-card w-full max-w-lg rounded-[3rem] border-t-4 border-red-600 overflow-hidden relative modal-enter">
+        <button onclick="closeDetail()" class="absolute top-6 right-6 p-2 bg-white/5 hover:bg-red-600/20 rounded-full text-white transition-all group">
+          <svg class="w-6 h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" /></svg>
+        </button>
+        <div class="p-10">
+          <div class="mb-8">
+            <div class="text-3xl font-black italic text-white uppercase tracking-tighter">ORDER<span class="text-red-600">DETAIL</span></div>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Digital Transaction Receipt</p>
+          </div>
+          <div id="detail-content" class="space-y-6"></div>
+          <button onclick="closeDetail()" class="btn-core w-full py-5 rounded-2xl font-black text-xs uppercase mt-10 tracking-widest">Close Record</button>
         </div>
+      </div>
+    </div>
+
+    <div id="chat-modal" class="fixed inset-0 z-[150] hidden flex items-center justify-center p-6 bg-[#020617]/90 backdrop-blur-xl">
+      <div class="glass-card w-full max-w-2xl h-[80vh] rounded-[3rem] border-t-4 border-red-600 overflow-hidden relative modal-enter flex flex-col">
+        <div class="p-6 border-b border-white/5 flex items-center justify-between">
+          <div>
+            <h3 class="text-xl font-black italic text-white uppercase tracking-tighter">Chat with User</h3>
+            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1" id="chat-user-info">User Info</p>
+          </div>
+          <button onclick="closeChatModal()" class="p-2 bg-white/5 hover:bg-red-600/20 rounded-full text-white transition-all group">
+            <svg class="w-6 h-6 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2.5" stroke-linecap="round" /></svg>
+          </button>
+        </div>
+        <div id="chat-messages-admin" class="flex-1 p-6 overflow-y-auto space-y-4 text-[11px] font-medium bg-[#0f172a]"></div>
+        <div class="p-6 border-t border-white/5">
+          <div class="flex gap-2">
+            <input type="text" id="admin-chat-input" placeholder="Type your message..." class="admin-input flex-1" onkeypress="if (event.key === 'Enter') sendAdminMessage();" />
+            <button onclick="sendAdminMessage()" class="btn-core px-6 py-3 rounded-xl font-black text-xs uppercase">Send</button>
+          </div>
+          <button onclick="endChatSession()" class="w-full mt-4 btn-reject py-3 rounded-xl font-black text-xs uppercase">End Chat & Return to Bot</button>
+        </div>
+      </div>
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+      import { getDatabase, ref, set, push, onValue, remove, update, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIG
-        const ADMIN_CRED = { u: "putragacorbae", p: "?admintopup031104" };
-        const firebaseConfig = {
-            apiKey: "AIzaSyBgDG1pbpT-eB8RR_gPGs1EfZR9Sfczzfc",
-            authDomain: "cute-temanmu.firebaseapp.com",
-            databaseURL: "https://cute-temanmu-default-rtdb.firebaseio.com",
-            projectId: "cute-temanmu",
-            storageBucket: "cute-temanmu.appspot.com",
-            messagingSenderId: "356926981274",
-            appId: "1:356926981274:web:f7ffb5817dfe5c74a4cb23"
-        };
+      // CONFIG
+      const ADMIN_CRED = { u: "putragacorbae", p: "?admintopup031104" };
+      const firebaseConfig = {
+        apiKey: "AIzaSyBgDG1pbpT-eB8RR_gPGs1EfZR9Sfczzfc",
+        authDomain: "cute-temanmu.firebaseapp.com",
+        databaseURL: "https://cute-temanmu-default-rtdb.firebaseio.com",
+        projectId: "cute-temanmu",
+        storageBucket: "cute-temanmu.appspot.com",
+        messagingSenderId: "356926981274",
+        appId: "1:356926981274:web:f7ffb5817dfe5c74a4cb23",
+      };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const WEBHOOK = "https://discord.com/api/webhooks/1473231285924265994/pWp8ggIvgfzoZwFPnudv5z6m354LGUrUcIwVPmLptP3fO7BB74j2fhXN0Jv7zi5eki3R";
+      const app = initializeApp(firebaseConfig);
+      const db = getDatabase(app);
+      const WEBHOOK = "https://discord.com/api/webhooks/1466102748331245568/innFCGbR6TPdicNfmcbcrTP8sJ7VVs6O0oAl3bfWeu3LCNlxBFP3jsdxWsgVOx8pL1PL";
 
-        // AUTH LOGIC
-        function checkAuth() {
-            if (sessionStorage.getItem('admin_auth') === 'true') {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('admin-content').classList.remove('hidden');
-            }
+      let currentChatSession = null;
+      let chatMessagesUnsubscribe = null;
+
+      // AUTH LOGIC
+      function checkAuth() {
+        if (sessionStorage.getItem("admin_auth") === "true") {
+          document.getElementById("login-overlay").style.display = "none";
+          document.getElementById("admin-content").classList.remove("hidden");
+        }
+      }
+
+      window.attemptLogin = () => {
+        const u = document.getElementById("admin-user").value;
+        const p = document.getElementById("admin-pass").value;
+        if (u === ADMIN_CRED.u && p === ADMIN_CRED.p) {
+          sessionStorage.setItem("admin_auth", "true");
+          alert("Login Berhasil!");
+          checkAuth();
+        } else {
+          alert("Akses Ditolak!");
+          document.getElementById("admin-pass").value = "";
+        }
+      };
+
+      window.logout = () => {
+        sessionStorage.removeItem("admin_auth");
+        location.reload();
+      };
+      checkAuth();
+
+      // UTILS
+      window.formatIDR = (i) => {
+        let v = i.value.replace(/\D/g, "");
+        if (v !== "") i.value = parseInt(v).toLocaleString("id-ID");
+      };
+
+      window.showPage = (p) => {
+        document.querySelectorAll("main > section").forEach((s) => s.classList.add("hidden"));
+        document.querySelectorAll(".sidebar-item").forEach((i) => {
+          i.classList.remove("active");
+          i.querySelector("div").classList.replace("bg-red-600", "bg-slate-700");
+        });
+        document.getElementById(`page-${p}`).classList.remove("hidden");
+        const activeNav = document.getElementById(`nav-${p}`);
+        activeNav.classList.add("active");
+        activeNav.querySelector("div").classList.replace("bg-slate-700", "bg-red-600");
+        if (window.innerWidth < 1024) toggleSidebar();
+      };
+
+      window.toggleSidebar = () => document.getElementById("sidebar").classList.toggle("-translate-x-full");
+
+      // MODAL LOGIC
+      window.openDetail = (data) => {
+        const modal = document.getElementById("detail-modal");
+        const content = document.getElementById("detail-content");
+        const isSuccess = data.status === "success";
+
+        content.innerHTML = `
+                      <div class="grid grid-cols-2 gap-4">
+                          <div class="bg-white/5 p-4 rounded-2xl">
+                              <div class="text-[9px] font-black text-red-500 uppercase italic mb-1">Status</div>
+                              <div class="text-sm font-black ${isSuccess ? "text-green-500" : "text-red-500"} italic uppercase">${data.status}</div>
+                          </div>
+                          <div class="bg-white/5 p-4 rounded-2xl">
+                              <div class="text-[9px] font-black text-red-500 uppercase italic mb-1">Time</div>
+                              <div class="text-sm font-black text-white italic uppercase">${data.time}</div>
+                          </div>
+                      </div>
+                      <div class="bg-white/5 p-6 rounded-[2rem] border border-white/5">
+                          <div class="text-[9px] font-black text-slate-500 uppercase italic mb-4">Customer Info</div>
+                          <div class="space-y-3">
+                              <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400">ROBLOX USER</span><span class="text-sm font-black text-white uppercase italic">${data.roblox}</span></div>
+                              <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400">DISCORD</span><span class="text-sm font-black text-white italic">${data.discord || "-"}</span></div>
+                          </div>
+                      </div>
+                      <div class="bg-red-600/5 p-6 rounded-[2rem] border border-red-600/10">
+                          <div class="text-[9px] font-black text-red-500 uppercase italic mb-2">Item Details</div>
+                          <div class="text-xl font-black text-white uppercase italic tracking-tighter">${data.produk}</div>
+                          ${!isSuccess ? `<div class="mt-4 pt-4 border-t border-red-600/10"><div class="text-[9px] font-black text-red-400 uppercase italic mb-1">Rejection Reason</div><div class="text-xs text-slate-300 italic">${data.reason}</div></div>` : ""}
+                      </div>
+                  `;
+        modal.classList.remove("hidden");
+        document.body.style.overflow = "hidden";
+      };
+
+      window.closeDetail = () => {
+        document.getElementById("detail-modal").classList.add("hidden");
+        document.body.style.overflow = "auto";
+      };
+
+      // --- WEBHOOK DATABASE ACTIONS ---
+      window.acc = async (orderKey, prod, rob, disc, type, uid, price) => {
+        if (!confirm(`Terima pesanan ${rob}?`)) return;
+        try {
+          if (type === "Robux") {
+            const minus = parseInt(prod.split(" ")[0].replace(/\./g, ""));
+            const sRef = ref(db, "stok_robux");
+            const snap = await get(sRef);
+            const curr = snap.val() || 0;
+            if (curr < minus) return alert("Stok Robux Tidak Cukup!");
+            await set(sRef, curr - minus);
+          }
+
+          await push(ref(db, `notif_popup/${uid}`), { type: "success", title: "ORDER SUCCESS", msg: `Selamat! Pesanan ${prod} Anda telah berhasil dikirim oleh Admin.` });
+          const time = new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+
+          // Save to History
+          await push(ref(db, `riwayat/${uid}`), { produk: prod, time: time, roblox: rob, status: "success", price: price });
+          await push(ref(db, `admin_riwayat`), { produk: prod, time: time, roblox: rob, status: "success", discord: disc, price: price, email: sensorEmail(disc) });
+          await remove(ref(db, `orders_active/${uid}`));
+
+          // WEBHOOK DISCORD SUCCESS - TAMBAHAN KONFIRMASI SELESAI
+          const embed = {
+            title: "✅ PESANAN SELESAI - OFFICIAL RECEIPT",
+            color: 5763719,
+            description: "Transaksi **SELESAI** diproses oleh Admin. Pelanggan telah menerima item.",
+            fields: [
+              { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0, 6).toUpperCase()}\``, inline: true },
+              { name: "⏰ WAKTU SELESAI", value: time, inline: true },
+              { name: "🎮 ROBLOX USER", value: `**${rob}**`, inline: true },
+              { name: "💬 DISCORD", value: `**${disc}**`, inline: true },
+              { name: "📦 PRODUK", value: `\`${prod}\``, inline: false },
+              { name: "💰 HARGA", value: `Rp ${price}`, inline: true },
+            ],
+            footer: { text: "RBX-STORE | Admin Confirmed Success" },
+            timestamp: new Date(),
+          };
+          await fetch(WEBHOOK, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              content: `**✅ PESANAN SELESAI!** Pelanggan **${disc}** | ${rob} @everyone`,
+              embeds: [embed],
+            }),
+          });
+
+          alert("✅ Pesanan Selesai! Webhook terkirim.");
+        } catch (e) {
+          alert("Error: " + e.message);
+        }
+      };
+
+      window.reject = async (orderKey, prod, rob, disc, uid, price) => {
+        const reason = prompt(`Alasan tolak ${rob}:`, "Bukti transfer tidak valid / Belum masuk");
+        if (reason === null) return;
+        try {
+          await push(ref(db, `notif_popup/${uid}`), { type: "error", title: "ORDER REJECTED", msg: `Maaf, pesanan ${prod} Anda ditolak. Alasan: ${reason}` });
+          const time = new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+
+          // Save to History
+          await push(ref(db, `riwayat/${uid}`), { produk: prod, time: time, roblox: rob, status: "failed", reason: reason, price: price });
+          await push(ref(db, `admin_riwayat`), { produk: prod, time: time, roblox: rob, status: "failed", reason: reason, discord: disc, price: price });
+          await remove(ref(db, `orders_active/${uid}`));
+
+          // WEBHOOK DISCORD REJECT
+          const embed = {
+            title: "❌ TRANSACTION REJECTED",
+            color: 15548997,
+            description: "Mohon maaf, pesanan Anda tidak dapat kami proses saat ini.",
+            fields: [
+              { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0, 6).toUpperCase()}\``, inline: true },
+              { name: "🎮 USERNAME", value: `**${rob}**`, inline: false },
+              { name: "⚠️ ALASAN PENOLAKAN", value: `**${reason}**`, inline: false },
+            ],
+            footer: { text: "Hubungi Admin untuk klarifikasi." },
+            timestamp: new Date(),
+          };
+          await fetch(WEBHOOK, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ content: `**PESANAN DITOLAK!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) });
+
+          alert("Berhasil Ditolak!");
+        } catch (e) {
+          alert(e.message);
+        }
+      };
+
+      // MONITOR QUEUE
+      onValue(ref(db, "orders_active"), (snap) => {
+        const list = document.getElementById("list-active");
+        list.innerHTML = "";
+        if (!snap.exists()) {
+          list.innerHTML = "<div class='col-span-full glass-card p-16 text-center opacity-40 uppercase font-black italic'>Antrean Kosong</div>";
+          return;
+        }
+        snap.forEach((c) => {
+          const d = c.val();
+          list.innerHTML += `
+                          <div class="glass-card p-8 rounded-[2.5rem] border-l-4 border-red-600">
+                              <div class="text-[9px] font-black text-red-500 uppercase italic">Target User</div>
+                              <div class="text-2xl font-black text-white italic truncate">${d.roblox}</div>
+                              <div class="text-[10px] text-slate-500 font-bold mb-4">Disc: ${d.discord}</div>
+                              <div class="bg-white/5 p-4 rounded-2xl mb-6 text-white font-black text-sm uppercase border border-white/5 italic">${d.produk}</div>
+                              <div class="flex gap-2">
+                                  <button onclick="acc('${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.type}', '${d.uid}', '${d.price}')" class="flex-[2] btn-core py-4 rounded-xl font-black text-[10px] uppercase">ACC</button>
+                                  <button onclick="reject('${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.uid}', '${d.price}')" class="flex-1 btn-reject py-4 rounded-xl font-black text-[10px] uppercase">REJECT</button>
+                              </div>
+                          </div>`;
+        });
+      });
+
+      // MONITOR HISTORY
+      onValue(ref(db, "admin_riwayat"), (snap) => {
+        const body = document.getElementById("history-table-body");
+        body.innerHTML = "";
+        if (!snap.exists()) {
+          body.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-500 font-black italic uppercase">No records found</td></tr>`;
+          return;
+        }
+        let records = [];
+        snap.forEach((c) => {
+          records.push(c.val());
+        });
+        records.reverse().forEach((d) => {
+          const isSuccess = d.status === "success";
+          const row = document.createElement("tr");
+          row.className = "border-t border-white/5 hover:bg-white/[0.05] transition cursor-pointer";
+          row.onclick = () => openDetail(d);
+          row.innerHTML = `
+                          <td class="p-6 text-[11px] font-bold text-slate-400">${d.time}</td>
+                          <td class="p-6">
+                              <div class="text-[12px] font-black text-white uppercase italic">${d.roblox}</div>
+                              <div class="text-[9px] text-slate-500">${d.discord || "-"}</div>
+                          </td>
+                          <td class="p-6 text-[11px] font-black text-slate-300 uppercase italic">${d.produk}</td>
+                          <td class="p-6">
+                              <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase italic ${isSuccess ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"}">
+                                  ${isSuccess ? "SUCCESS" : "FAILED"}
+                              </span>
+                          </td>
+                      `;
+          body.appendChild(row);
+        });
+      });
+
+      window.clearAllHistory = () => {
+        if (confirm("DANGER: Wipe all history?")) remove(ref(db, "admin_riwayat"));
+      };
+
+      // MONITOR SUPPORT CHAT
+      onValue(ref(db, "support_chat"), (snap) => {
+        const chatList = document.getElementById("chat-session-list");
+        if (!chatList) return;
+        chatList.innerHTML = "";
+        if (!snap.exists()) {
+          chatList.innerHTML = "<div class='glass-card p-16 text-center opacity-40 uppercase font-black italic'>Tidak ada permintaan chat CS.</div>";
+          return;
+        }
+        const entries = [];
+        snap.forEach((c) => entries.push({ key: c.key, ...c.val() }));
+        entries.reverse();
+
+        let activeCount = 0;
+        entries.forEach((item) => {
+          if (item.status === "resolved") return;
+          activeCount++;
+          const badgeClass = item.status === "accepted" ? "bg-blue-500/10 text-blue-300" : "bg-yellow-500/10 text-yellow-300";
+          const statusLabel = item.status === "accepted" ? "Terhubung" : "Menunggu";
+          const card = `
+                          <div class="glass-card p-6 rounded-[2.5rem] border border-white/5">
+                              <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                                  <div>
+                                      <div class="text-[10px] font-black text-slate-400 uppercase mb-2">Request dari</div>
+                                      <div class="text-lg font-black text-white uppercase">${item.maskedEmail || item.email || "Guest"}</div>
+                                      <div class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">${item.time || "-"}</div>
+                                  </div>
+                                  <span class="px-3 py-2 rounded-full text-[10px] font-black uppercase ${badgeClass}">${statusLabel}</span>
+                              </div>
+                              <div class="mt-5 text-sm text-slate-200">${item.message || "-"}</div>
+                              <div class="mt-6 flex flex-wrap gap-3">
+                                  ${item.status === "pending" ? `<button onclick="acceptChat('${item.key}', '${item.maskedEmail || item.email || "Guest"}')" class="btn-core py-3 rounded-2xl text-[10px] uppercase">Terima & Chat</button>` : ""}
+                                  ${item.status === "accepted" ? `<button onclick="openChatModal('${item.key}', '${item.maskedEmail || item.email || "Guest"}')" class="btn-core py-3 rounded-2xl text-[10px] uppercase">Buka Chat</button>` : ""}
+                                  <button onclick="resolveChat('${item.key}')" class="btn-reject py-3 rounded-2xl text-[10px] uppercase">Tandai Selesai</button>
+                              </div>
+                          </div>`;
+          if (chatList) chatList.innerHTML += card;
+        });
+
+        if (activeCount === 0) {
+          chatList.innerHTML = "<div class='glass-card p-16 text-center opacity-40 uppercase font-black italic'>Tidak ada permintaan chat CS.</div>";
+        }
+      });
+
+      window.resolveChat = async (key) => {
+        if (!confirm("Tandai permintaan CS ini selesai? Akan dihapus dari daftar aktif.")) return;
+        await remove(ref(db, `support_chat/${key}`));
+      };
+
+      window.acceptChat = async (key, userInfo) => {
+        if (!confirm("Terima permintaan chat ini dan hubungkan dengan pembeli?")) return;
+        await update(ref(db, `support_chat/${key}`), { status: "accepted" });
+        showAdminNotif("Chat Diterima", `Terhubung dengan ${userInfo}. Chat dimulai!`);
+        if (userInfo) openChatModal(key, userInfo);
+      };
+
+      window.openChatModal = (sessionId, userInfo) => {
+        showPage("chat");
+        currentChatSession = sessionId;
+        const userInfoDisplay = `${userInfo}`;
+        document.getElementById("chat-user-info").innerText = userInfoDisplay;
+        const panel = document.getElementById("chat-panel");
+        const panelUser = document.getElementById("chat-panel-user");
+        const panelEmpty = document.getElementById("chat-panel-empty");
+
+        if (panel) {
+          panel.classList.remove("hidden");
+          panelEmpty.classList.add("hidden");
+          panelUser.innerText = userInfoDisplay;
         }
 
-        window.attemptLogin = () => {
-            const u = document.getElementById('admin-user').value;
-            const p = document.getElementById('admin-pass').value;
-            if (u === ADMIN_CRED.u && p === ADMIN_CRED.p) {
-                sessionStorage.setItem('admin_auth', 'true');
-                alert("Login Berhasil!");
-                checkAuth();
-            } else {
-                alert("Akses Ditolak!");
-                document.getElementById('admin-pass').value = "";
-            }
-        };
+        showAdminNotif("Chat Dibuka", `Berbicara dengan ${userInfoDisplay}`);
+        loadChatMessages();
+      };
 
-        window.logout = () => { sessionStorage.removeItem('admin_auth'); location.reload(); };
-        checkAuth();
+      window.requestNotificationPermission = async () => {
+        if (!("Notification" in window)) {
+          console.log("Browser tidak support Notification API");
+          return false;
+        }
+        if (Notification.permission === "granted") {
+          return true;
+        }
+        if (Notification.permission !== "denied") {
+          const permission = await Notification.requestPermission();
+          return permission === "granted";
+        }
+        return false;
+      };
 
-        // UTILS
-        window.formatIDR = (i) => { let v = i.value.replace(/\D/g, ""); if (v !== "") i.value = parseInt(v).toLocaleString("id-ID"); };
-        
-        window.showPage = (p) => { 
-            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden')); 
-            document.querySelectorAll('.sidebar-item').forEach(i => {
-                i.classList.remove('active');
-                i.querySelector('div').classList.replace('bg-red-600', 'bg-slate-700');
-            }); 
-            document.getElementById(`page-${p}`).classList.remove('hidden'); 
-            const activeNav = document.getElementById(`nav-${p}`);
-            activeNav.classList.add('active');
-            activeNav.querySelector('div').classList.replace('bg-slate-700', 'bg-red-600');
-            if(window.innerWidth < 1024) toggleSidebar(); 
-        };
-
-        window.toggleSidebar = () => document.getElementById('sidebar').classList.toggle('-translate-x-full');
-
-        // MODAL LOGIC
-        window.openDetail = (data) => {
-            const modal = document.getElementById('detail-modal');
-            const content = document.getElementById('detail-content');
-            const isSuccess = data.status === 'success';
-
-            content.innerHTML = `
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="bg-white/5 p-4 rounded-2xl">
-                        <div class="text-[9px] font-black text-red-500 uppercase italic mb-1">Status</div>
-                        <div class="text-sm font-black ${isSuccess ? 'text-green-500' : 'text-red-500'} italic uppercase">${data.status}</div>
-                    </div>
-                    <div class="bg-white/5 p-4 rounded-2xl">
-                        <div class="text-[9px] font-black text-red-500 uppercase italic mb-1">Time</div>
-                        <div class="text-sm font-black text-white italic uppercase">${data.time}</div>
-                    </div>
-                </div>
-                <div class="bg-white/5 p-6 rounded-[2rem] border border-white/5">
-                    <div class="text-[9px] font-black text-slate-500 uppercase italic mb-4">Customer Info</div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400">ROBLOX USER</span><span class="text-sm font-black text-white uppercase italic">${data.roblox}</span></div>
-                        <div class="flex justify-between items-center"><span class="text-[10px] font-bold text-slate-400">DISCORD</span><span class="text-sm font-black text-white italic">${data.discord || '-'}</span></div>
-                    </div>
-                </div>
-                <div class="bg-red-600/5 p-6 rounded-[2rem] border border-red-600/10">
-                    <div class="text-[9px] font-black text-red-500 uppercase italic mb-2">Item Details</div>
-                    <div class="text-xl font-black text-white uppercase italic tracking-tighter">${data.produk}</div>
-                    ${!isSuccess ? `<div class="mt-4 pt-4 border-t border-red-600/10"><div class="text-[9px] font-black text-red-400 uppercase italic mb-1">Rejection Reason</div><div class="text-xs text-slate-300 italic">${data.reason}</div></div>` : ''}
-                </div>
-            `;
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        };
-
-        window.closeDetail = () => {
-            document.getElementById('detail-modal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        };
-
-        // --- WEBHOOK DATABASE ACTIONS ---
-        window.acc = async (orderKey, prod, rob, disc, type, uid) => {
-            if(!confirm(`Terima pesanan ${rob}?`)) return;
-            try {
-                if(type === 'Robux') {
-                    const minus = parseInt(prod.split(' ')[0].replace(/\./g, ''));
-                    const sRef = ref(db, 'stok_robux'); const snap = await get(sRef);
-                    const curr = snap.val() || 0; if (curr < minus) return alert("Stok Robux Tidak Cukup!");
-                    await set(sRef, curr - minus);
-                }
-                
-                await push(ref(db, `notif_popup/${uid}`), { type: 'success', title: 'ORDER SUCCESS', msg: `Selamat! Pesanan ${prod} Anda telah berhasil dikirim oleh Admin.` });
-                const time = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-                
-                // Save to History
-                await push(ref(db, `riwayat/${uid}`), { produk: prod, time: time, roblox: rob, status: 'success' });
-                await push(ref(db, `admin_riwayat`), { produk: prod, time: time, roblox: rob, status: 'success', discord: disc });
-                await remove(ref(db, `orders_active/${uid}`));
-
-                // WEBHOOK DISCORD SUCCESS
-                const embed = {
-                    title: "🧾 OFFICIAL RECEIPT - SUCCESS", color: 5763719, description: "Transaksi telah berhasil diproses secara otomatis oleh sistem.",
-                    fields: [
-                        { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0,6).toUpperCase()}\``, inline: true },
-                        { name: "⏰ WAKTU SELESAI", value: time, inline: true },
-                        { name: "🎮 USERNAME ROBLOX", value: `**${rob}**`, inline: false },
-                        { name: "📦 DETAIL ITEM", value: `\`${prod}\``, inline: false }
-                    ],
-                    footer: { text: "RBX-STORE Digital Struk System" }, timestamp: new Date()
-                };
-                await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: `**PESANAN SELESAI!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) });
-
-                alert("Berhasil ACC!");
-            } catch (e) { alert(e.message); }
-        };
-
-        window.reject = async (orderKey, prod, rob, disc, uid) => {
-            const reason = prompt(`Alasan tolak ${rob}:`, "Bukti transfer tidak valid / Belum masuk");
-            if(reason === null) return;
-            try {
-                await push(ref(db, `notif_popup/${uid}`), { type: 'error', title: 'ORDER REJECTED', msg: `Maaf, pesanan ${prod} Anda ditolak. Alasan: ${reason}` });
-                const time = new Date().toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
-                
-                // Save to History
-                await push(ref(db, `riwayat/${uid}`), { produk: prod, time: time, roblox: rob, status: 'failed', reason: reason });
-                await push(ref(db, `admin_riwayat`), { produk: prod, time: time, roblox: rob, status: 'failed', reason: reason, discord: disc });
-                await remove(ref(db, `orders_active/${uid}`));
-
-                // WEBHOOK DISCORD REJECT
-                const embed = {
-                    title: "❌ TRANSACTION REJECTED", color: 15548997, description: "Mohon maaf, pesanan Anda tidak dapat kami proses saat ini.",
-                    fields: [
-                        { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0,6).toUpperCase()}\``, inline: true },
-                        { name: "🎮 USERNAME", value: `**${rob}**`, inline: false },
-                        { name: "⚠️ ALASAN PENOLAKAN", value: `**${reason}**`, inline: false }
-                    ],
-                    footer: { text: "Hubungi Admin untuk klarifikasi." }, timestamp: new Date()
-                };
-                await fetch(WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ content: `**PESANAN DITOLAK!** Pelanggan: **${disc}** @everyone`, embeds: [embed] }) });
-
-                alert("Berhasil Ditolak!");
-            } catch (e) { alert(e.message); }
-        };
-
-        // MONITOR QUEUE
-        onValue(ref(db, 'orders_active'), (snap) => {
-            const list = document.getElementById('list-active'); list.innerHTML = "";
-            if(!snap.exists()) { list.innerHTML = "<div class='col-span-full glass-card p-16 text-center opacity-40 uppercase font-black italic'>Antrean Kosong</div>"; return; }
-            snap.forEach(c => {
-                const d = c.val();
-                list.innerHTML += `
-                    <div class="glass-card p-8 rounded-[2.5rem] border-l-4 border-red-600">
-                        <div class="text-[9px] font-black text-red-500 uppercase italic">Target User</div>
-                        <div class="text-2xl font-black text-white italic truncate">${d.roblox}</div>
-                        <div class="text-[10px] text-slate-500 font-bold mb-4">Disc: ${d.discord}</div>
-                        <div class="bg-white/5 p-4 rounded-2xl mb-6 text-white font-black text-sm uppercase border border-white/5 italic">${d.produk}</div>
-                        <div class="flex gap-2">
-                            <button onclick="acc('${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.type}', '${d.uid}')" class="flex-[2] btn-core py-4 rounded-xl font-black text-[10px] uppercase">ACC</button>
-                            <button onclick="reject('${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.uid}')" class="flex-1 btn-reject py-4 rounded-xl font-black text-[10px] uppercase">REJECT</button>
-                        </div>
-                    </div>`;
+      window.showAdminNotif = (title, msg) => {
+        requestNotificationPermission().then((permitted) => {
+          if (permitted && Notification.permission === "granted") {
+            new Notification(title, {
+              body: msg,
+              icon: "/icon.png",
+              badge: "/icon.png",
+              tag: "app-notification",
+              requireInteraction: false,
             });
+          }
         });
 
-        // MONITOR HISTORY
-        onValue(ref(db, 'admin_riwayat'), (snap) => {
-            const body = document.getElementById('history-table-body');
-            body.innerHTML = "";
-            if(!snap.exists()) {
-                body.innerHTML = `<tr><td colspan="4" class="p-10 text-center text-slate-500 font-black italic uppercase">No records found</td></tr>`;
-                return;
-            }
-            let records = [];
-            snap.forEach(c => { records.push(c.val()); });
-            records.reverse().forEach(d => {
-                const isSuccess = d.status === 'success';
-                const row = document.createElement('tr');
-                row.className = "border-t border-white/5 hover:bg-white/[0.05] transition cursor-pointer";
-                row.onclick = () => openDetail(d);
-                row.innerHTML = `
-                    <td class="p-6 text-[11px] font-bold text-slate-400">${d.time}</td>
-                    <td class="p-6">
-                        <div class="text-[12px] font-black text-white uppercase italic">${d.roblox}</div>
-                        <div class="text-[9px] text-slate-500">${d.discord || '-'}</div>
-                    </td>
-                    <td class="p-6 text-[11px] font-black text-slate-300 uppercase italic">${d.produk}</td>
-                    <td class="p-6">
-                        <span class="px-3 py-1 rounded-full text-[9px] font-black uppercase italic ${isSuccess ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}">
-                            ${isSuccess ? 'SUCCESS' : 'FAILED'}
-                        </span>
-                    </td>
-                `;
-                body.appendChild(row);
-            });
+        let container = document.getElementById("android-notif-container");
+        if (!container) {
+          container = document.createElement("div");
+          container.id = "android-notif-container";
+          container.className = "fixed top-0 left-0 right-0 z-[9999] p-4 flex flex-col gap-2 pointer-events-none";
+          document.body.appendChild(container);
+        }
+
+        const notif = document.createElement("div");
+        notif.className = `bg-green-600 text-white rounded-lg shadow-2xl p-4 max-w-md mx-auto w-full pointer-events-auto animate-pulse`;
+        notif.innerHTML = `
+          <div class="flex gap-3">
+            <div class="text-2xl flex-shrink-0">✓</div>
+            <div class="flex-1">
+              <div class="font-black text-sm uppercase tracking-wider">${title}</div>
+              <div class="text-xs opacity-90 mt-1">${msg}</div>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(notif);
+        setTimeout(() => {
+          notif.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+          notif.style.opacity = "0";
+          notif.style.transform = "translateY(-20px)";
+          setTimeout(() => notif.remove(), 400);
+        }, 4000);
+      };
+
+      window.closeChatModal = () => {
+        const panel = document.getElementById("chat-panel");
+        const panelEmpty = document.getElementById("chat-panel-empty");
+        if (panel) panel.classList.add("hidden");
+        if (panelEmpty) panelEmpty.classList.remove("hidden");
+        currentChatSession = null;
+        if (chatMessagesUnsubscribe) {
+          chatMessagesUnsubscribe();
+          chatMessagesUnsubscribe = null;
+        }
+      };
+
+      window.closeChatPanel = () => {
+        const panel = document.getElementById("chat-panel");
+        const panelEmpty = document.getElementById("chat-panel-empty");
+        const chatModal = document.getElementById("chat-modal");
+        if (panel) panel.classList.add("hidden");
+        if (panelEmpty) panelEmpty.classList.remove("hidden");
+        if (chatModal) chatModal.classList.add("hidden");
+        document.body.style.overflow = "auto";
+        currentChatSession = null;
+        if (chatMessagesUnsubscribe) {
+          chatMessagesUnsubscribe();
+          chatMessagesUnsubscribe = null;
+        }
+      };
+
+      function loadChatMessages() {
+        if (!currentChatSession) return;
+        if (chatMessagesUnsubscribe) {
+          chatMessagesUnsubscribe();
+          chatMessagesUnsubscribe = null;
+        }
+        const messagesRef = ref(db, `chat_sessions/${currentChatSession}/messages`);
+        chatMessagesUnsubscribe = onValue(messagesRef, (snap) => {
+          const container = document.getElementById("chat-messages-admin");
+          const panelContainer = document.getElementById("chat-messages-admin-panel");
+          if (container) container.innerHTML = "";
+          if (panelContainer) panelContainer.innerHTML = "";
+          snap.forEach((childSnap) => {
+            const msg = childSnap.val();
+            const msgEl = document.createElement("div");
+            msgEl.className = `p-3 rounded-2xl max-w-[85%] ${msg.from === "admin" ? "ml-auto bg-red-600 text-white" : "bg-slate-700 text-white"}`;
+            msgEl.innerText = msg.message;
+            if (container) container.appendChild(msgEl);
+            if (panelContainer) panelContainer.appendChild(msgEl.cloneNode(true));
+          });
+          if (container) container.scrollTop = container.scrollHeight;
+          if (panelContainer) panelContainer.scrollTop = panelContainer.scrollHeight;
         });
+      }
 
-        window.clearAllHistory = () => { if(confirm("DANGER: Wipe all history?")) remove(ref(db, 'admin_riwayat')); };
-
-        // MANAGEMENT LOGIC
-        window.updateStok = () => { let v = document.getElementById('stok_val').value.replace(/\./g, ""); if(v) set(ref(db, 'stok_robux'), parseInt(v)).then(() => alert("Stok Sync!")); };
-        window.tambahP = async () => { 
-            const n = document.getElementById('p_nama').value, h = document.getElementById('p_harga').value, t = document.getElementById('p_type').value, ek = document.getElementById('edit-key').value; 
-            if(!n || !h) return; 
-            const data = { amount: n, price: h, type: t, display: t === 'Robux' ? `${n} Robux — Rp ${h}` : `${n} — Rp ${h}` }; 
-            if(ek) await update(ref(db, `produk/${ek}`), data); else await push(ref(db, 'produk'), data); 
-            resetForm(); 
+      window.sendAdminMessage = async () => {
+        const input = document.getElementById("admin-chat-input");
+        const message = input.value.trim();
+        if (!message || !currentChatSession) return;
+        const msgData = {
+          from: "admin",
+          message: message,
+          time: new Date().toISOString(),
         };
-        window.resetForm = () => { document.getElementById('edit-key').value = ""; document.getElementById('p_nama').value = ""; document.getElementById('p_harga').value = ""; document.getElementById('btn-submit-p').innerText = "DEPLOY"; document.getElementById('btn-cancel-edit').classList.add('hidden'); };
-        window.prepareEdit = (k, a, p, t) => { document.getElementById('edit-key').value = k; document.getElementById('p_nama').value = a; document.getElementById('p_harga').value = p; document.getElementById('p_type').value = t; document.getElementById('btn-submit-p').innerText = "UPDATE"; document.getElementById('btn-cancel-edit').classList.remove('hidden'); };
+        await push(ref(db, `chat_sessions/${currentChatSession}/messages`), msgData);
+        input.value = "";
+      };
+      window.sendAdminMessagePanel = async () => {
+        const input = document.getElementById("admin-chat-input-panel");
+        const message = input.value.trim();
+        if (!message || !currentChatSession) return;
+        const msgData = {
+          from: "admin",
+          message: message,
+          time: new Date().toISOString(),
+        };
+        await push(ref(db, `chat_sessions/${currentChatSession}/messages`), msgData);
+        input.value = "";
+      };
+      window.endChatSession = async () => {
+        if (!currentChatSession) return;
+        // Send end message first
+        const endMsg = {
+          from: "admin",
+          message: "Chat dengan CS telah selesai. Jika butuh bantuan lagi, silakan hubungi kembali.",
+          time: new Date().toISOString(),
+        };
+        await push(ref(db, `chat_sessions/${currentChatSession}/messages`), endMsg);
 
-        onValue(ref(db, 'produk'), (snap) => {
-            const list = document.getElementById('list-p-admin'); let count = 0; list.innerHTML = "";
-            snap.forEach(c => { count++; const i = c.val(); list.innerHTML += `<div class="item-card p-6 rounded-[2rem] border border-white/5 flex flex-col justify-between"><div><div class="text-[9px] font-black text-red-500 uppercase italic">${i.type}</div><h4 class="text-xl font-black text-white italic mb-4 uppercase">${i.amount}</h4></div><div class="flex gap-2"><button onclick="prepareEdit('${c.key}', '${i.amount}', '${i.price}', '${i.type}')" class="flex-1 bg-blue-600/10 text-blue-500 py-2 rounded-lg text-[9px] font-black uppercase">Edit</button><button onclick="hapus('${c.key}')" class="flex-1 bg-red-600/10 text-red-500 py-2 rounded-lg text-[9px] font-black uppercase">Del</button></div></div>`; });
-            document.getElementById('item-count').innerText = `${count} Items`;
+        // Delete from active list (support_chat)
+        await remove(ref(db, `support_chat/${currentChatSession}`));
+        alert("Stok Sync!");
+      };
+
+      window.tambahP = async () => {
+        const n = document.getElementById("p_nama").value,
+          h = document.getElementById("p_harga").value,
+          t = document.getElementById("p_type").value,
+          ek = document.getElementById("edit-key").value;
+        if (!n || !h) return;
+        const data = { amount: n, price: h, type: t, display: t === "Robux" ? `${n} Robux — Rp ${h}` : `${n} — Rp ${h}` };
+        if (ek) await update(ref(db, `produk/${ek}`), data);
+        else await push(ref(db, "produk"), data);
+        resetForm();
+      };
+      window.resetForm = () => {
+        document.getElementById("edit-key").value = "";
+        document.getElementById("p_nama").value = "";
+        document.getElementById("p_harga").value = "";
+        document.getElementById("btn-submit-p").innerText = "DEPLOY";
+        document.getElementById("btn-cancel-edit").classList.add("hidden");
+      };
+      window.prepareEdit = (k, a, p, t) => {
+        document.getElementById("edit-key").value = k;
+        document.getElementById("p_nama").value = a;
+        document.getElementById("p_harga").value = p;
+        document.getElementById("p_type").value = t;
+        document.getElementById("btn-submit-p").innerText = "UPDATE";
+        document.getElementById("btn-cancel-edit").classList.remove("hidden");
+      };
+
+      onValue(ref(db, "produk"), (snap) => {
+        const list = document.getElementById("list-p-admin");
+        let count = 0;
+        list.innerHTML = "";
+        snap.forEach((c) => {
+          count++;
+          const i = c.val();
+          list.innerHTML += `<div class="item-card p-6 rounded-[2rem] border border-white/5 flex flex-col justify-between"><div><div class="text-[9px] font-black text-red-500 uppercase italic">${i.type}</div><h4 class="text-xl font-black text-white italic mb-4 uppercase">${i.amount}</h4></div><div class="flex gap-2"><button onclick="prepareEdit('${c.key}', '${i.amount}', '${i.price}', '${i.type}')" class="flex-1 bg-blue-600/10 text-blue-500 py-2 rounded-lg text-[9px] font-black uppercase">Edit</button><button onclick="hapus('${c.key}')" class="flex-1 bg-red-600/10 text-red-500 py-2 rounded-lg text-[9px] font-black uppercase">Del</button></div></div>`;
         });
-        window.hapus = (k) => confirm("Hapus?") && remove(ref(db, `produk/${k}`));
+        document.getElementById("item-count").innerText = `${count} Items`;
+      });
+      window.hapus = (k) => confirm("Hapus?") && remove(ref(db, `produk/${k}`));
     </script>
-</body>
+  </body>
 </html>
