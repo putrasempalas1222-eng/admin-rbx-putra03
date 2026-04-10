@@ -431,54 +431,108 @@
       };
 
       // --- WEBHOOK DATABASE ACTIONS ---
-      window.acc = async (orderKey, prod, rob, disc, type, uid, price) => {
-        if (!confirm(`Terima pesanan ${rob}?`)) return;
+      window.acc = async (btn, orderKey, prod, rob, disc, type, uid, price) => {
+        // Validate inputs
+        if (!orderKey || !prod || !rob || !uid || !type || !price) {
+          alert("Data pesanan tidak lengkap!");
+          return;
+        }
+
+        // Set loading state
+        const originalText = btn.innerText;
+        btn.innerText = "Sedang diproses...";
+        btn.disabled = true;
+
         try {
           if (type === "Robux") {
-            const minus = parseInt(prod.split(" ")[0].replace(/\./g, ""));
+            // Improved safe parsing - handles "1.000 Robux" or "1000 Robux"
+            const robuxStr = prod.split(" ")[0].replace(/\./g, "");
+            const minus = parseInt(robuxStr);
+            if (isNaN(minus) || minus <= 0) {
+              throw new Error("Jumlah Robux tidak valid dari produk: " + prod);
+            }
+
             const sRef = ref(db, "stok_robux");
             const snap = await get(sRef);
-            const curr = snap.val() || 0;
-            if (curr < minus) return alert("Stok Robux Tidak Cukup!");
+            const curr = parseInt(snap.val()) || 0;
+
+            if (curr < minus) {
+              alert(`❌ Stok Robux tidak cukup!\nTersedia: R$ ${curr.toLocaleString()}\nDibutuhkan: R$ ${minus.toLocaleString()}`);
+              return;
+            }
+
             await set(sRef, curr - minus);
+            console.log(`Stok dikurangi: ${minus}, sisa: ${curr - minus}`);
           }
 
-          await push(ref(db, `notif_popup/${uid}`), { type: "success", title: "ORDER SUCCESS", msg: `Selamat! Pesanan ${prod} Anda telah berhasil dikirim oleh Admin.` });
-          const time = new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
-
-          // Save to History
-          await push(ref(db, `riwayat/${uid}`), { produk: prod, time: time, roblox: rob, status: "success", price: price });
-          await push(ref(db, `admin_riwayat`), { produk: prod, time: time, roblox: rob, status: "success", discord: disc, price: price, email: sensorEmail(disc) });
-          await remove(ref(db, `orders_active/${uid}`));
-
-          // WEBHOOK DISCORD SUCCESS - TAMBAHAN KONFIRMASI SELESAI
-          const embed = {
-            title: "✅ PESANAN SELESAI - OFFICIAL RECEIPT",
-            color: 5763719,
-            description: "Transaksi **SELESAI** diproses oleh Admin. Pelanggan telah menerima item.",
-            fields: [
-              { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0, 6).toUpperCase()}\``, inline: true },
-              { name: "⏰ WAKTU SELESAI", value: time, inline: true },
-              { name: "🎮 ROBLOX USER", value: `**${rob}**`, inline: true },
-              { name: "💬 DISCORD", value: `**${disc}**`, inline: true },
-              { name: "📦 PRODUK", value: `\`${prod}\``, inline: false },
-              { name: "💰 HARGA", value: `Rp ${price}`, inline: true },
-            ],
-            footer: { text: "RBX-STORE | Admin Confirmed Success" },
-            timestamp: new Date(),
-          };
-          await fetch(WEBHOOK, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              content: `**✅ PESANAN SELESAI!** Pelanggan **${disc}** | ${rob} @everyone`,
-              embeds: [embed],
-            }),
+          // Customer notification
+          await push(ref(db, `notif_popup/${uid}`), {
+            type: "success",
+            title: "✅ ORDER BERHASIL",
+            msg: `Selamat! Pesanan "${prod}" Anda telah berhasil diproses oleh Admin.`,
           });
 
-          alert("✅ Pesanan Selesai! Webhook terkirim.");
-        } catch (e) {
-          alert("Error: " + e.message);
+          const time = new Date().toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+
+          // Save to History (fixed sensorEmail issue)
+          await push(ref(db, `riwayat/${uid}`), {
+            produk: prod,
+            time: time,
+            roblox: rob,
+            status: "success",
+            price: price,
+          });
+          await push(ref(db, `admin_riwayat`), {
+            produk: prod,
+            time: time,
+            roblox: rob,
+            status: "success",
+            discord: disc,
+            price: price,
+          });
+          await remove(ref(db, `orders_active/${uid}`));
+
+          // Discord webhook with error handling
+          try {
+            const embed = {
+              title: "✅ PESANAN SELESAI - OFFICIAL RECEIPT",
+              color: 5763719,
+              description: "Transaksi **SELESAI** diproses oleh Admin. Pelanggan telah menerima item.",
+              fields: [
+                { name: "📋 NOMOR INVOICE", value: `\`INV-${uid.substring(0, 6).toUpperCase()}\``, inline: true },
+                { name: "⏰ WAKTU SELESAI", value: time, inline: true },
+                { name: "🎮 ROBLOX USER", value: `**${rob}**`, inline: true },
+                { name: "💬 DISCORD", value: `**${disc}**`, inline: true },
+                { name: "📦 PRODUK", value: `\`${prod}\``, inline: false },
+                { name: "💰 HARGA", value: `Rp ${price}`, inline: true },
+              ],
+              footer: { text: "RBX-STORE | Admin Confirmed Success" },
+              timestamp: new Date(),
+            };
+            const response = await fetch(WEBHOOK, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                content: `**✅ PESANAN SELESAI!** Pelanggan **${disc}** | ${rob} @everyone`,
+                embeds: [embed],
+              }),
+            });
+            if (!response.ok) {
+              console.error("Webhook failed:", response.status);
+            }
+          } catch (webhookErr) {
+            console.error("Webhook error:", webhookErr);
+            // Continue even if webhook fails
+          }
+
+          alert("✅ Pesanan berhasil diproses sepenuhnya!");
+        } catch (error) {
+          console.error("ACC Error details:", error);
+          alert("❌ Error saat memproses: " + error.message);
+        } finally {
+          // Always reset button state
+          btn.innerText = originalText;
+          btn.disabled = false;
         }
       };
 
@@ -532,7 +586,7 @@
                               <div class="text-[10px] text-slate-500 font-bold mb-4">Disc: ${d.discord}</div>
                               <div class="bg-white/5 p-4 rounded-2xl mb-6 text-white font-black text-sm uppercase border border-white/5 italic">${d.produk}</div>
                               <div class="flex gap-2">
-                                  <button onclick="acc('${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.type}', '${d.uid}', '${d.price}')" class="flex-[2] btn-core py-4 rounded-xl font-black text-[10px] uppercase">ACC</button>
+                                  <button onclick="acc(this, '${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.type}', '${d.uid}', '${d.price}')" class="flex-[2] btn-core py-4 rounded-xl font-black text-[10px] uppercase">ACC</button>
                                   <button onclick="reject('${c.key}', '${d.produk}', '${d.roblox}', '${d.discord}', '${d.uid}', '${d.price}')" class="flex-1 btn-reject py-4 rounded-xl font-black text-[10px] uppercase">REJECT</button>
                               </div>
                           </div>`;
