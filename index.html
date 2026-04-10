@@ -193,6 +193,11 @@
               <div class="glass-card p-8 rounded-[2.5rem]">
                 <h3 class="text-[10px] font-black text-red-500 uppercase mb-6 italic">Inventory Robux</h3>
                 <div class="relative mb-4"><input type="text" id="stok_val" placeholder="Total Robux" class="admin-input" oninput="formatIDR(this)" /><span class="input-unit">R$ TOTAL</span></div>
+
+                <div class="mt-4 p-3 bg-slate-800/50 rounded-xl text-center">
+                  <div class="text-[9px] font-bold text-slate-400 uppercase italic mb-1">Tips:</div>
+                  <div class="text-[10px] text-slate-300">Input angka tanpa titik/koma. Akan otomatis format. Contoh: 1000000</div>
+                </div>
                 <button onclick="updateStok()" class="btn-core w-full py-4 rounded-xl font-black text-[10px] uppercase">Sync Stock</button>
               </div>
               <div class="glass-card p-8 rounded-[2.5rem]">
@@ -342,6 +347,53 @@
 
       let currentChatSession = null;
       let chatMessagesUnsubscribe = null;
+
+      // Fixed: no parameter needed for onclick
+      window.updateStok = async () => {
+        try {
+          const input = document.getElementById("stok_val");
+          if (!input) throw new Error("Input tidak ditemukan.");
+
+          // Bersihkan format titik/koma (misal 1.000 menjadi 1000)
+          let value = input.value.replace(/[^\d]/g, "");
+          const stok = parseInt(value) || 0;
+
+          if (stok < 0) {
+            alert("Stok tidak boleh negatif!");
+            return;
+          }
+
+          // Sekarang 'ref', 'db', dan 'set' sudah dikenali karena dalam satu modul
+          const stokRef = ref(db, "stok_robux");
+          await set(stokRef, stok);
+
+          const btn = document.querySelector('#page-manage button[onclick="updateStok()"]');
+          if (btn) {
+          alert(`Stok berhasil diupdate ke: ${stok.toLocaleString("id-ID")} Robux!`);
+          }
+          console.log(`Stok diupdate ke: ${stok}`);
+        } catch (error) {
+          console.error("Error:", error);
+          alert("Gagal update: " + error.message);
+        }
+      };
+
+      // Override showPage untuk mengambil stok otomatis saat buka tab Management
+      const originalShowPage = window.showPage;
+      window.showPage = function (page) {
+        if (typeof originalShowPage === "function") {
+          originalShowPage.call(this, page);
+        }
+
+        if (page === "manage") {
+          const stokRef = ref(db, "stok_robux");
+          get(stokRef).then((snap) => {
+            const currentStok = snap.val() || 0;
+            const input = document.getElementById("stok_val");
+            if (input) input.value = currentStok.toLocaleString("id-ID");
+          });
+        }
+      };
 
       // AUTH LOGIC
       function checkAuth() {
