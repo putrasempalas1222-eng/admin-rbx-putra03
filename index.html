@@ -226,6 +226,32 @@
           <div class="xl:col-span-4 space-y-10">
             <div class="glass-card p-8 rounded-[2.5rem]">
               <h3 class="text-[10px] font-black text-red-500 uppercase mb-6 italic">Inventory Robux</h3>
+              <div class="glass-card p-6 rounded-[2rem] mt-6">
+                <div class="flex justify-between items-center">
+
+                  <div>
+                    <div class="text-[10px] font-black text-red-500 uppercase italic">Store Status</div>
+                    <div class="text-[9px] text-slate-400">Buka / Tutup Order</div>
+                  </div>
+
+                  <!-- SWITCH -->
+                  <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="store-switch" class="sr-only peer">
+
+                    <div class="w-14 h-8 bg-slate-700 rounded-full peer 
+      peer-checked:bg-green-500 transition"></div>
+
+                    <div class="absolute left-1 top-1 w-6 h-6 bg-white rounded-full 
+      transition peer-checked:translate-x-6"></div>
+                  </label>
+
+                </div>
+
+                <div id="store-status-text" class="text-[10px] font-black mt-3 uppercase text-slate-400">
+                  Checking...
+                </div>
+              </div>
+              <div style="margin-top: 10px;"></div>
               <div class="relative mb-4"><input type="text" id="stok_val" placeholder="Total Robux" class="admin-input"
                   oninput="formatIDR(this)" /><span class="input-unit">R$ TOTAL</span></div>
 
@@ -721,7 +747,7 @@
         // 🔥 DISCORD WEBHOOK
         try {
           const embed = {
-            title: "✅ PESANAN SELESAI - OFFICIAL RECEIPT",
+            title: "PESANAN SELESAI - OFFICIAL RECEIPT",
             color: 5763719,
             description: "Transaksi SELESAI diproses oleh Admin.",
             fields: [
@@ -733,11 +759,6 @@
               { name: "💰 HARGA", value: `Rp ${price}`, inline: true },
 
               // 🔥 PAYMENT MASUK DISCORD
-              {
-                name: "💳 PAYMENT",
-                value: `Method: ${payment_method}\nNumber: ${payment_number}\nName: ${payment_name}`,
-                inline: false
-              }
             ],
             timestamp: new Date(),
           };
@@ -746,7 +767,7 @@
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              content: `✅ ORDER SELESAI - ${rob}`,
+             content: `ORDER SELESAI - @${rob}`,
               embeds: [embed],
             }),
           });
@@ -835,7 +856,7 @@
 
         // 🔥 WEBHOOK DISCORD
         const embed = {
-          title: "❌ TRANSACTION REJECTED",
+          title: "TRANSACTION REJECTED",
           color: 15548997,
           description: "Pesanan ditolak oleh admin.",
           fields: [
@@ -932,6 +953,68 @@
       </div>`;
       });
     });
+
+    // ==============================
+    // 🔥 STORE OPEN / CLOSE SYSTEM
+    // ==============================
+
+    const storeRef = ref(db, "store_status");
+
+    // 🔥 LOAD STATUS REALTIME
+    onValue(storeRef, (snap) => {
+      const isOpen = snap.exists() ? snap.val() : true;
+
+      const switchEl = document.getElementById("store-switch");
+      const text = document.getElementById("store-status-text");
+
+      if (switchEl) {
+        switchEl.checked = isOpen;
+      }
+
+      if (text) {
+        if (isOpen) {
+          text.innerText = "🟢 STORE OPEN";
+          text.className = "text-[10px] font-black mt-3 uppercase text-green-400";
+        } else {
+          text.innerText = "🔴 STORE CLOSED";
+          text.className = "text-[10px] font-black mt-3 uppercase text-red-400";
+        }
+      }
+    });
+
+
+    // 🔥 HANDLE SWITCH CLICK (ANTI ERROR)
+    const initStoreSwitch = () => {
+      const switchEl = document.getElementById("store-switch");
+
+      if (!switchEl) {
+        console.warn("Switch belum ditemukan, retry...");
+        setTimeout(initStoreSwitch, 300);
+        return;
+      }
+
+      switchEl.addEventListener("change", async (e) => {
+        const isOpen = e.target.checked;
+
+        try {
+          await set(storeRef, isOpen);
+
+          showAdminNotif(
+            "STORE STATUS",
+            isOpen ? "Store Dibuka ✅" : "Store Ditutup ❌"
+          );
+
+          console.log("Store status updated:", isOpen);
+
+        } catch (err) {
+          console.error("Gagal update store:", err);
+          alert("Gagal update status store!");
+        }
+      });
+    };
+
+    // 🔥 INIT (PASTIKAN ELEMENT SUDAH ADA)
+    setTimeout(initStoreSwitch, 500);
 
     // MONITOR HISTORY
     onValue(ref(db, "admin_riwayat"), (snap) => {
